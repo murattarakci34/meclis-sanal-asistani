@@ -21,6 +21,7 @@ os.chdir(BASE_DIR)
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
+app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024  # 25 MB
 
 _rag: SourceRAG | None = None
 _kaynak_fp: str = ""
@@ -69,6 +70,62 @@ def index():
         "index.html",
         app_name=getattr(config, "APP_NAME", "Meclis Sanal Asistanı"),
     )
+
+
+@app.get("/karsilastirma")
+def karsilastirma_page():
+    return render_template(
+        "karsilastirma.html",
+        app_name=getattr(config, "APP_NAME", "Meclis Sanal Asistanı"),
+    )
+
+
+@app.post("/api/compare")
+def api_compare():
+    """Eski düzenleme vs yeni teklif karşılaştırma."""
+    import comparator
+
+    warnings: list[str] = []
+    old_text = (request.form.get("old_text") or "").strip()
+    new_text = (request.form.get("new_text") or "").strip()
+
+    old_f = request.files.get("old_file")
+    new_f = request.files.get("new_file")
+
+    try:
+        if old_f and old_f.filename:
+            t, w = comparator.extract_text_from_upload(
+                old_f.filename, old_f.read()
+            )
+            warnings.extend(w)
+            if t:
+                old_text = t
+        if new_f and new_f.filename:
+            t, w = comparator.extract_text_from_upload(
+                new_f.filename, new_f.read()
+            )
+            warnings.extend(w)
+            if t:
+                new_text = t
+
+        if not old_text or not new_text:
+            return (
+                jsonify(
+                    {
+                        "error": "Eski ve yeni metin gerekli (dosya yükleyin veya yapıştırın)."
+                    }
+                ),
+                400,
+            )
+
+        result = comparator.compare_texts(old_text, new_text)
+        # Dosya uyarılarını öne ekle
+        result["uyarilar"] = list(dict.fromkeys(warnings + (result.get("uyarilar") or [])))
+        return jsonify(result)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": f"Karşılaştırma hatası: {exc}"}), 500
 
 
 @app.get("/api/health")

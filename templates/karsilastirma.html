@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Madde Karşılaştırma — {{ app_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='compare.css') }}" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="/">← Asistan</a>
+    <div class="brand">
+      <span class="flag">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="50" cy="50" r="50" fill="#E30A17"/>
+          <circle cx="42" cy="50" r="20" fill="#fff"/>
+          <circle cx="48" cy="50" r="16" fill="#E30A17"/>
+          <polygon fill="#fff" points="67,50 61.2,52.1 62.8,58.1 57.8,54.2 52,57.5 55.2,52.1 50,50 55.2,47.9 52,42.5 57.8,45.8 62.8,41.9 61.2,47.9"/>
+        </svg>
+      </span>
+      <div>
+        <strong>Madde Karşılaştırma Asistanı</strong>
+        <span class="sub">{{ app_name }}</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p class="lead">
+      Eski düzenleme ile yeni teklifi yükleyin veya yapıştırın.
+      Madde hizalama, kelime diff, anlamsal özet ve etki notları üretilir.
+    </p>
+
+    <form id="form" class="form">
+      <div class="cols">
+        <section class="panel">
+          <h2>Eski düzenleme</h2>
+          <label class="file">
+            <input type="file" id="oldFile" accept=".pdf,.docx,.txt,.md" />
+            <span>PDF / Word / TXT yükle</span>
+          </label>
+          <p class="fname" id="oldFname"></p>
+          <textarea id="oldText" rows="12" placeholder="veya metni buraya yapıştırın…"></textarea>
+        </section>
+        <section class="panel">
+          <h2>Yeni teklif</h2>
+          <label class="file">
+            <input type="file" id="newFile" accept=".pdf,.docx,.txt,.md" />
+            <span>PDF / Word / TXT yükle</span>
+          </label>
+          <p class="fname" id="newFname"></p>
+          <textarea id="newText" rows="12" placeholder="veya metni buraya yapıştırın…"></textarea>
+        </section>
+      </div>
+      <button type="submit" class="run" id="runBtn">Karşılaştır</button>
+    </form>
+
+    <div class="status" id="status" hidden></div>
+
+    <section class="results" id="results" hidden>
+      <div class="stats" id="stats"></div>
+
+      <div class="block">
+        <h3>Değişiklik özeti</h3>
+        <ul id="ozet"></ul>
+      </div>
+
+      <div class="block">
+        <h3>Madde / bölüm tablosu</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Konu</th>
+                <th>Eski</th>
+                <th>Yeni</th>
+                <th>Değişim</th>
+              </tr>
+            </thead>
+            <tbody id="tablo"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Diff görünümü <small>(kırmızı silinen · yeşil eklenen)</small></h3>
+        <div id="diffs"></div>
+      </div>
+
+      <div class="block">
+        <h3>Etki notları</h3>
+        <ul id="etki"></ul>
+      </div>
+
+      <div class="block warn-block">
+        <h3>Uyarılar &amp; güven</h3>
+        <p class="guven" id="guven"></p>
+        <ul id="uyarilar"></ul>
+        <p class="disc" id="disc"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='compare.js') }}"></script>
+</body>
+</html>

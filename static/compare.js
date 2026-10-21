@@ -10,13 +10,36 @@
   const newText = document.getElementById("newText");
   const oldFname = document.getElementById("oldFname");
   const newFname = document.getElementById("newFname");
+  const oldMeta = document.getElementById("oldMeta");
+  const newMeta = document.getElementById("newMeta");
+  const oldThumb = document.getElementById("oldThumb");
+  const newThumb = document.getElementById("newThumb");
 
-  oldFile.addEventListener("change", () => {
-    oldFname.textContent = oldFile.files[0]?.name || "";
-  });
-  newFile.addEventListener("change", () => {
-    newFname.textContent = newFile.files[0]?.name || "";
-  });
+  function bindFile(input, meta, fnameEl, thumbEl) {
+    input.addEventListener("change", () => {
+      const f = input.files[0];
+      if (!f) {
+        meta.hidden = true;
+        thumbEl.hidden = true;
+        thumbEl.removeAttribute("src");
+        fnameEl.textContent = "";
+        return;
+      }
+      meta.hidden = false;
+      fnameEl.textContent = f.name + (f.size ? ` · ${(f.size / 1024).toFixed(0)} KB` : "");
+      if (f.type.startsWith("image/")) {
+        const url = URL.createObjectURL(f);
+        thumbEl.src = url;
+        thumbEl.hidden = false;
+      } else {
+        thumbEl.hidden = true;
+        thumbEl.removeAttribute("src");
+      }
+    });
+  }
+
+  bindFile(oldFile, oldMeta, oldFname, oldThumb);
+  bindFile(newFile, newMeta, newFname, newThumb);
 
   function tipLabel(t) {
     const map = {
@@ -114,7 +137,7 @@
     e.preventDefault();
     runBtn.disabled = true;
     results.hidden = true;
-    showStatus("Karşılaştırılıyor… (madde hizalama + diff + yapay zekâ analizi)");
+    showStatus("Karşılaştırılıyor… (dosya/görsel okuma + madde hizalama + analiz)");
 
     const fd = new FormData();
     if (oldFile.files[0]) fd.append("old_file", oldFile.files[0]);

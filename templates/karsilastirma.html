@@ -30,27 +30,41 @@
   <main class="wrap">
     <p class="lead">
       Eski düzenleme ile yeni teklifi yükleyin veya yapıştırın.
-      Madde hizalama, kelime diff, anlamsal özet ve etki notları üretilir.
+      PDF, Word, TXT ve <strong>görsel</strong> (PNG, JPG, WEBP) desteklenir.
     </p>
 
     <form id="form" class="form">
       <div class="cols">
         <section class="panel">
           <h2>Eski düzenleme</h2>
-          <label class="file">
-            <input type="file" id="oldFile" accept=".pdf,.docx,.txt,.md" />
-            <span>PDF / Word / TXT yükle</span>
+          <label class="upload-btn" for="oldFile">
+            <input type="file" id="oldFile" accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.gif,.bmp,image/*" hidden />
+            <span class="upload-icon" aria-hidden="true">⬆</span>
+            <span class="upload-text">
+              <strong>Dosya seç</strong>
+              <small>PDF, Word, TXT veya görsel</small>
+            </span>
           </label>
-          <p class="fname" id="oldFname"></p>
+          <div class="file-meta" id="oldMeta" hidden>
+            <img class="thumb" id="oldThumb" alt="" hidden />
+            <p class="fname" id="oldFname"></p>
+          </div>
           <textarea id="oldText" rows="12" placeholder="veya metni buraya yapıştırın…"></textarea>
         </section>
         <section class="panel">
           <h2>Yeni teklif</h2>
-          <label class="file">
-            <input type="file" id="newFile" accept=".pdf,.docx,.txt,.md" />
-            <span>PDF / Word / TXT yükle</span>
+          <label class="upload-btn" for="newFile">
+            <input type="file" id="newFile" accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.gif,.bmp,image/*" hidden />
+            <span class="upload-icon" aria-hidden="true">⬆</span>
+            <span class="upload-text">
+              <strong>Dosya seç</strong>
+              <small>PDF, Word, TXT veya görsel</small>
+            </span>
           </label>
-          <p class="fname" id="newFname"></p>
+          <div class="file-meta" id="newMeta" hidden>
+            <img class="thumb" id="newThumb" alt="" hidden />
+            <p class="fname" id="newFname"></p>
+          </div>
           <textarea id="newText" rows="12" placeholder="veya metni buraya yapıştırın…"></textarea>
         </section>
       </div>

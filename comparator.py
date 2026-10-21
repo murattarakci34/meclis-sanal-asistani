@@ -7,8 +7,8 @@ Eski düzenleme vs yeni teklif karşılaştırma motoru.
 
 from __future__ import annotations
 
+import base64
 import difflib
-import io
 import json
 import re
 import tempfile
@@ -29,15 +29,85 @@ _ARTICLE_TITLE = re.compile(
     re.IGNORECASE,
 )
 
+IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"}
+DOC_EXTS = {".pdf", ".docx", ".txt", ".md"}
+
+
+def _mime_for_image(suffix: str) -> str:
+    return {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+        ".bmp": "image/bmp",
+    }.get(suffix, "image/jpeg")
+
+
+def extract_text_from_image(filename: str, raw: bytes) -> tuple[str, list[str]]:
+    """Görselden OpenAI Vision ile metin çıkar (OCR)."""
+    warnings: list[str] = []
+    name = (filename or "gorsel.jpg").strip()
+    suffix = Path(name).suffix.lower() or ".jpg"
+
+    if not config.OPENAI_API_KEY or not config.OPENAI_API_KEY.startswith("sk-"):
+        raise ValueError("Görsel okumak için OPENAI_API_KEY gerekli.")
+
+    if len(raw) > 20 * 1024 * 1024:
+        raise ValueError(f"{name}: görsel çok büyük (max ~20 MB).")
+
+    b64 = base64.b64encode(raw).decode("ascii")
+    data_url = f"data:{_mime_for_image(suffix)};base64,{b64}"
+    client = OpenAI(api_key=config.OPENAI_API_KEY)
+
+    resp = client.chat.completions.create(
+        model=config.CHAT_MODEL,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Görseldeki tüm metni olduğu gibi, satır düzenini koruyarak çıkar. "
+                    "Yorum ekleme, sadece metni yaz. Okunamayan yerlere […] koy."
+                ),
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Bu görseldeki yasama / belge metnini çıkar:",
+                    },
+                    {"type": "image_url", "image_url": {"url": data_url}},
+                ],
+            },
+        ],
+        temperature=0,
+        max_tokens=4000,
+    )
+    text = (resp.choices[0].message.content or "").strip()
+    warnings.append(f"{name}: görselden yapay zekâ ile metin çıkarıldı (OCR).")
+    if not text:
+        warnings.append(f"{name}: görselde okunabilir metin bulunamadı.")
+    elif len(text) < 40:
+        warnings.append(f"{name}: çıkarılan metin çok kısa — görsel kalitesini kontrol edin.")
+    return text, warnings
+
 
 def extract_text_from_upload(filename: str, raw: bytes) -> tuple[str, list[str]]:
     """Yüklenen dosyadan metin çıkar. (text, warnings)"""
     warnings: list[str] = []
     name = (filename or "dosya.txt").strip() or "dosya.txt"
     suffix = Path(name).suffix.lower() or ".txt"
-    if suffix not in {".pdf", ".docx", ".txt", ".md"}:
-        warnings.append(f"Desteklenmeyen uzantı ({suffix}); düz metin olarak okunmaya çalışıldı.")
-        suffix = ".txt"
+
+    if suffix in IMAGE_EXTS:
+        return extract_text_from_image(name, raw)
+
+    if suffix not in DOC_EXTS:
+        warnings.append(
+            f"Desteklenmeyen uzantı ({suffix}). "
+            "PDF, Word, TXT veya görsel (PNG/JPG/WEBP) kullanın."
+        )
+        return "", warnings
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         tmp.write(raw)
@@ -55,8 +125,7 @@ def extract_text_from_upload(filename: str, raw: bytes) -> tuple[str, list[str]]
     if not text:
         warnings.append(f"{name}: metin çıkarılamadı (tarama PDF / boş dosya olabilir).")
     elif len(text) < 80:
-        warnings.append(f"{name}: çok kısa metin — OCR veya kopyala-yapıştır gerekebilir.")
-    # Bozuk karakter oranı kaba kontrol
+        warnings.append(f"{name}: çok kısa metin — görsel yükleme veya yapıştırma deneyin.")
     weird = sum(1 for c in text[:2000] if ord(c) < 9)
     if weird > 20:
         warnings.append(f"{name}: metin kalitesi düşük görünebilir.")

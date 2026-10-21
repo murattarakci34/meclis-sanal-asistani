@@ -1,5 +1,33 @@
 (() => {
   const APP_NAME = window.APP_NAME || "Meclis Sanal Asistanı";
+  const CLIENT_KEY = "msa_client_id";
+
+  function getClientId() {
+    let id = localStorage.getItem(CLIENT_KEY);
+    if (id && /^[a-zA-Z0-9_-]{8,64}$/.test(id)) return id;
+    id =
+      "c" +
+      ([...crypto.getRandomValues(new Uint8Array(16))]
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join(""));
+    localStorage.setItem(CLIENT_KEY, id);
+    return id;
+  }
+
+  const clientId = getClientId();
+
+  function apiHeaders(extra = {}) {
+    return {
+      "X-Client-Id": clientId,
+      ...extra,
+    };
+  }
+
+  async function api(url, options = {}) {
+    const headers = apiHeaders(options.headers || {});
+    const res = await fetch(url, { ...options, headers });
+    return res;
+  }
 
   const els = {
     sidebar: document.getElementById("sidebar"),
@@ -85,7 +113,7 @@
   }
 
   async function loadChatList(q = "") {
-    const res = await fetch(`/api/chats?q=${encodeURIComponent(q)}`);
+    const res = await api(`/api/chats?q=${encodeURIComponent(q)}`);
     const data = await res.json();
     const chats = data.chats || [];
     els.chatList.innerHTML = "";
@@ -104,7 +132,7 @@
       row.querySelector(".open").addEventListener("click", () => openChat(c.id));
       row.querySelector(".del").addEventListener("click", async (e) => {
         e.stopPropagation();
-        await fetch(`/api/chats/${c.id}`, { method: "DELETE" });
+        await api(`/api/chats/${c.id}`, { method: "DELETE" });
         if (currentChatId === c.id) startNew();
         else loadChatList(els.search.value.trim());
       });
@@ -113,7 +141,7 @@
   }
 
   async function openChat(id) {
-    const res = await fetch(`/api/chats/${id}`);
+    const res = await api(`/api/chats/${id}`);
     if (!res.ok) return;
     const chat = await res.json();
     currentChatId = chat.id;
@@ -163,7 +191,6 @@
     els.input.value = "";
     autosize();
 
-    // Optimistic user bubble
     if (!els.messages.querySelector(".msg") && els.empty.parentNode) {
       els.empty.style.display = "none";
     }
@@ -176,10 +203,14 @@
     showTyping();
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await api("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, chat_id: currentChatId }),
+        body: JSON.stringify({
+          message,
+          chat_id: currentChatId,
+          client_id: clientId,
+        }),
       });
       const data = await res.json();
       hideTyping();
@@ -189,7 +220,10 @@
       await loadChatList(els.search.value.trim());
     } catch (err) {
       hideTyping();
-      existing.push({ role: "assistant", content: "Bağlantı hatası. Tekrar deneyin." });
+      existing.push({
+        role: "assistant",
+        content: "Bağlantı hatası. Tekrar deneyin.",
+      });
       renderMessages(existing);
     } finally {
       busy = false;
@@ -198,7 +232,6 @@
     }
   });
 
-  // init
   loadChatList();
   renderMessages([]);
   els.input.focus();

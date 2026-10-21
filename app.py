@@ -14,6 +14,7 @@ from document_loader import kaynak_fingerprint
 from rag import SourceRAG
 
 APP_NAME = "Meclis Sanal Asistanı"
+CHAT_OWNER = "streamlit-local"
 
 # Dairesel Türk bayrağı (SVG)
 FLAG_SVG = """
@@ -378,24 +379,27 @@ def persist_messages() -> None:
     cid = st.session_state.current_chat_id
     if not cid:
         return
-    chat = chat_store.load_chat(cid)
+    chat = chat_store.load_chat(cid, owner_id=CHAT_OWNER)
     if not chat:
         return
     chat["messages"] = st.session_state.messages
     chat["title"] = st.session_state.get("chat_title") or chat.get("title") or "Yeni sohbet"
-    chat_store.save_chat(chat)
+    chat_store.save_chat(chat, owner_id=CHAT_OWNER)
 
 
 def ensure_chat_exists() -> str:
     if st.session_state.current_chat_id:
         return st.session_state.current_chat_id
-    chat = chat_store.create_chat(st.session_state.get("chat_title") or "Yeni sohbet")
+    chat = chat_store.create_chat(
+        st.session_state.get("chat_title") or "Yeni sohbet",
+        owner_id=CHAT_OWNER,
+    )
     st.session_state.current_chat_id = chat["id"]
     return chat["id"]
 
 
 def switch_chat(chat_id: str) -> None:
-    chat = chat_store.load_chat(chat_id)
+    chat = chat_store.load_chat(chat_id, owner_id=CHAT_OWNER)
     if not chat:
         return
     st.session_state.current_chat_id = chat_id
@@ -453,7 +457,9 @@ def render_sidebar() -> None:
 
         chats = [
             c
-            for c in chat_store.search_chats(st.session_state.search_q)
+            for c in chat_store.search_chats(
+                st.session_state.search_q, owner_id=CHAT_OWNER
+            )
             if c.get("message_count", 0) > 0
         ]
 
@@ -484,7 +490,7 @@ def render_sidebar() -> None:
                         use_container_width=True,
                         help="Sohbeti sil",
                     ):
-                        chat_store.delete_chat(item["id"])
+                        chat_store.delete_chat(item["id"], owner_id=CHAT_OWNER)
                         if item["id"] == st.session_state.current_chat_id:
                             start_new_chat()
                         st.rerun()

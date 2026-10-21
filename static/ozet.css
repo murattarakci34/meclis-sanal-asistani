@@ -1,0 +1,17 @@
+.ozet-wrap {
+  max-width: 760px;
+}
+.ozet-panel {
+  width: 100%;
+}
+.highlight {
+  border-color: #4a2020;
+  background: #221818;
+}
+.ozet-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #f5f5f5;
+  white-space: pre-wrap;
+}

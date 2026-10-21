@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Belge Özetleyici — {{ app_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='compare.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='ozet.css') }}" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="/">← Asistan</a>
+    <div class="brand">
+      <span class="flag">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="50" cy="50" r="50" fill="#E30A17"/>
+          <circle cx="42" cy="50" r="20" fill="#fff"/>
+          <circle cx="48" cy="50" r="16" fill="#E30A17"/>
+          <polygon fill="#fff" points="67,50 61.2,52.1 62.8,58.1 57.8,54.2 52,57.5 55.2,52.1 50,50 55.2,47.9 52,42.5 57.8,45.8 62.8,41.9 61.2,47.9"/>
+        </svg>
+      </span>
+      <div>
+        <strong>Belge Özetleyici</strong>
+        <span class="sub">{{ app_name }}</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap ozet-wrap">
+    <p class="lead">
+      PDF, Word, TXT, görsel yükleyin veya metni yapıştırın.
+      <strong>Özetle</strong> ile kısa özet ve ana noktalar üretilir.
+    </p>
+
+    <form id="form" class="form">
+      <section class="panel ozet-panel">
+        <h2>Belge / metin</h2>
+        <label class="upload-btn" for="file">
+          <input type="file" id="file" accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.gif,.bmp,image/*" hidden />
+          <span class="upload-icon" aria-hidden="true">⬆</span>
+          <span class="upload-text">
+            <strong>Dosya seç</strong>
+            <small>PDF, Word, TXT veya görsel</small>
+          </span>
+        </label>
+        <div class="file-meta" id="meta" hidden>
+          <img class="thumb" id="thumb" alt="" hidden />
+          <p class="fname" id="fname"></p>
+        </div>
+        <textarea id="text" rows="14" placeholder="veya metni buraya yapıştırın…"></textarea>
+      </section>
+      <button type="submit" class="run" id="runBtn">Özetle</button>
+    </form>
+
+    <div class="status" id="status" hidden></div>
+
+    <section class="results" id="results" hidden>
+      <div class="stats" id="stats"></div>
+
+      <div class="block highlight">
+        <h3>Kısa özet</h3>
+        <p class="ozet-text" id="kisa"></p>
+      </div>
+
+      <div class="block">
+        <h3>Ana noktalar</h3>
+        <ul id="noktalar"></ul>
+      </div>
+
+      <div class="block">
+        <h3>Kararlar / sonuçlar</h3>
+        <ul id="kararlar"></ul>
+      </div>
+
+      <div class="block warn-block">
+        <h3>Uyarılar</h3>
+        <ul id="uyarilar"></ul>
+        <p class="disc" id="disc"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='ozet.js') }}"></script>
+</body>
+</html>

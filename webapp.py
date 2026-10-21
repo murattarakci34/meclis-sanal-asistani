@@ -80,6 +80,32 @@ def karsilastirma_page():
     )
 
 
+@app.get("/ozetleyici")
+def ozetleyici_page():
+    return render_template(
+        "ozetleyici.html",
+        app_name=getattr(config, "APP_NAME", "Meclis Sanal Asistanı"),
+    )
+
+
+@app.post("/api/summarize")
+def api_summarize():
+    import summarizer
+
+    pasted = (request.form.get("text") or "").strip()
+    f = request.files.get("file")
+    filename = f.filename if f and f.filename else None
+    raw = f.read() if filename else None
+
+    try:
+        result = summarizer.summarize_upload(filename, raw, pasted)
+        return jsonify(result)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": f"Özetleme hatası: {exc}"}), 500
+
+
 @app.post("/api/compare")
 def api_compare():
     """Eski düzenleme vs yeni teklif karşılaştırma."""

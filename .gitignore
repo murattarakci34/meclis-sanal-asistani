@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.streamlit/secrets.toml
+sohbetler/
+*.zip
+MeclisSanalAsistani-publish.zip
+.DS_Store
+.idea/
+

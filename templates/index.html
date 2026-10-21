@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{{ app_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="flag" aria-hidden="true">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="50" fill="#E30A17"/>
+            <circle cx="42" cy="50" r="20" fill="#fff"/>
+            <circle cx="48" cy="50" r="16" fill="#E30A17"/>
+            <polygon fill="#fff" points="67,50 61.2,52.1 62.8,58.1 57.8,54.2 52,57.5 55.2,52.1 50,50 55.2,47.9 52,42.5 57.8,45.8 62.8,41.9 61.2,47.9"/>
+          </svg>
+        </span>
+        <span class="brand-text">{{ app_name }}</span>
+      </div>
+
+      <button type="button" class="btn-new" id="btnNew">＋  Yeni sohbet</button>
+      <input type="search" id="search" class="search" placeholder="Sohbetlerde ara" autocomplete="off" />
+
+      <div class="nav-label">Sohbetler</div>
+      <div class="chat-list" id="chatList"></div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <main class="main">
+      <header class="top">
+        <button type="button" class="menu-btn" id="menuBtn" aria-label="Menü">☰</button>
+        <h1 class="top-title" id="topTitle">{{ app_name }}</h1>
+      </header>
+
+      <div class="messages" id="messages">
+        <div class="empty" id="empty">
+          <div class="empty-flag">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="50" fill="#E30A17"/>
+              <circle cx="42" cy="50" r="20" fill="#fff"/>
+              <circle cx="48" cy="50" r="16" fill="#E30A17"/>
+              <polygon fill="#fff" points="67,50 61.2,52.1 62.8,58.1 57.8,54.2 52,57.5 55.2,52.1 50,50 55.2,47.9 52,42.5 57.8,45.8 62.8,41.9 61.2,47.9"/>
+            </svg>
+          </div>
+          <p class="empty-brand">{{ app_name }}</p>
+          <p class="empty-sub">Nasıl yardımcı olabilirim?</p>
+        </div>
+      </div>
+
+      <form class="composer" id="composer">
+        <div class="composer-inner">
+          <textarea id="input" rows="1" placeholder="Bir mesaj yazın" enterkeyhint="send"></textarea>
+          <button type="submit" id="sendBtn" aria-label="Gönder">➤</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    window.APP_NAME = {{ app_name|tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

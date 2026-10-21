@@ -1,0 +1,15 @@
+Bu bir örnek kaynak dosyasıdır.
+
+Şirket adı: Demo Teknoloji A.Ş.
+Kuruluş yılı: 2019
+Merkez: İstanbul
+
+Ürünler:
+- Kaynak Asistanı: Belgelerden soru-cevap yapan yapay zeka aracı
+- Rapor Botu: PDF raporlardan özet üreten yardımcı
+
+İletişim:
+E-posta: destek@demo-teknoloji.example
+Telefon: +90 212 000 00 00
+
+Çalışma saatleri: Hafta içi 09:00–18:00

@@ -1,0 +1,81 @@
+.opts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+.opt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.opt select {
+  background: #1c1c1c;
+  color: var(--text);
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.9rem;
+}
+.opt select:focus {
+  outline: none;
+  border-color: #555;
+}
+.actions-row {
+  margin-bottom: 12px;
+}
+.copy-btn {
+  border: 1px solid #3a3a3a;
+  background: #2a2a2a;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.copy-btn:hover { background: #333; }
+
+.q-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.q-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.q-num {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.q-text {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  line-height: 1.55;
+  font-weight: 500;
+}
+.q-meta {
+  display: grid;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: #cfcfcf;
+}
+.q-meta strong {
+  color: var(--muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+@media (max-width: 640px) {
+  .opts { grid-template-columns: 1fr; }
+}

@@ -88,6 +88,14 @@ def ozetleyici_page():
     )
 
 
+@app.get("/soru-uretici")
+def soru_uretici_page():
+    return render_template(
+        "soru_uretici.html",
+        app_name=getattr(config, "APP_NAME", "Meclis Sanal Asistanı"),
+    )
+
+
 @app.post("/api/summarize")
 def api_summarize():
     import summarizer
@@ -104,6 +112,31 @@ def api_summarize():
         return jsonify({"error": str(exc)}), 400
     except Exception as exc:  # noqa: BLE001
         return jsonify({"error": f"Özetleme hatası: {exc}"}), 500
+
+
+@app.post("/api/questions")
+def api_questions():
+    import question_gen
+
+    pasted = (request.form.get("text") or "").strip()
+    mode = (request.form.get("mode") or "komisyon").strip()
+    try:
+        count = int(request.form.get("count") or 10)
+    except ValueError:
+        count = 10
+    f = request.files.get("file")
+    filename = f.filename if f and f.filename else None
+    raw = f.read() if filename else None
+
+    try:
+        result = question_gen.generate_from_upload(
+            filename, raw, pasted, mode=mode, count=count
+        )
+        return jsonify(result)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": f"Soru üretim hatası: {exc}"}), 500
 
 
 @app.post("/api/compare")
